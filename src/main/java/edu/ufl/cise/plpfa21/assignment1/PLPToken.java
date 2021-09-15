@@ -1,16 +1,18 @@
 package edu.ufl.cise.plpfa21.assignment1;
 
+import java.util.HashMap;
+
 @SuppressWarnings("unused")
 public class PLPToken implements IPLPToken {
 	public String texty;
 	public int lineNumber;
 	public int characterPosition;
 	public Kind kind;
-	
-	public PLPToken(Kind kind,int lineNumber,int characterPosition) {
+	public PLPToken(Kind kind,String texty,int lineNumber,int characterPosition) {
 		this.kind = kind;
 		this.lineNumber = lineNumber;
 		this.characterPosition = characterPosition;
+		this.texty = texty;
 	}
 	@Override
 	public Kind getKind() {
@@ -45,7 +47,7 @@ public class PLPToken implements IPLPToken {
 	@Override
 	public int getIntValue() {
 		// TODO Auto-generated method stub
-		return this.lineNumber;
+		return Integer.parseInt(this.texty);
 	}
 
 }
