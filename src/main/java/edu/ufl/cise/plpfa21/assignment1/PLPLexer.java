@@ -15,17 +15,31 @@ public class PLPLexer implements IPLPLexer {
 		tokenId++;
 		return tokenId;
 	}
-	public Hashtable<String, PLPTokenKinds.Kind> isaSymbol(String s,int line,int charPos){
-		String[] symbols = {"=",",",";",":","(",")","[","]","<",">","!","+","-","*","/"};
-		Hashtable<String, PLPTokenKinds.Kind> k = new Hashtable<String, PLPTokenKinds.Kind>(); // itrate symbols and push into hashtable check for symbol and object use approapriate kind
-		/*switch (s)
-				{
-					case '=': token_List.add(new PLPToken(PLPTokenKinds.Kind.EQUALS,r, line, charPos));
-				}*/
-		return k;
+	public boolean isaSymbol(String s,int line,int charPos){
+		if(s.matches("[=,;:()<>!+*/-]") || s.charAt(0)=='[' || s.charAt(0)==']') {
+			String[] symbols = {"=", ",", ";", ":", "(", ")", "[", "]", "<", ">", "!", "+", "-", "*", "/"};
+			Hashtable<String, PLPTokenKinds.Kind> SymbolKind = new Hashtable<String, PLPTokenKinds.Kind>(); // itrate symbols and push into hashtable check for symbol and object use approapriate kind
+			SymbolKind.put("=", PLPTokenKinds.Kind.ASSIGN);
+			SymbolKind.put(",", PLPTokenKinds.Kind.COMMA);
+			SymbolKind.put(";", PLPTokenKinds.Kind.SEMI);
+			SymbolKind.put(":", PLPTokenKinds.Kind.COLON);
+			SymbolKind.put("(", PLPTokenKinds.Kind.LPAREN);
+			SymbolKind.put(")", PLPTokenKinds.Kind.RPAREN);
+			SymbolKind.put("[", PLPTokenKinds.Kind.LSQUARE);
+			SymbolKind.put("]", PLPTokenKinds.Kind.RSQUARE);
+			SymbolKind.put("<", PLPTokenKinds.Kind.LT);
+			SymbolKind.put(">", PLPTokenKinds.Kind.GT);
+			SymbolKind.put("!", PLPTokenKinds.Kind.BANG);
+			SymbolKind.put("+", PLPTokenKinds.Kind.PLUS);
+			SymbolKind.put("-", PLPTokenKinds.Kind.MINUS);
+			SymbolKind.put("*", PLPTokenKinds.Kind.TIMES);
+			SymbolKind.put("/", PLPTokenKinds.Kind.DIV);
+			token_List.add(new PLPToken(SymbolKind.get(s), s, line, charPos));
+			return true;
+		}
+		return false;
 	}
-	public PLPLexer(String input)
-	{
+	public PLPLexer(String input) throws LexicalException {
 		token_List= new ArrayList<IPLPToken>();
 		tokenId=0;
 		enum State { START, SYMBOL, IDENTIFIER, IntLiteral, StringLiteral, EscapeSequence, Comment };
@@ -128,16 +142,40 @@ public class PLPLexer implements IPLPLexer {
 						Word+=input.charAt(i++);
 					}
 					--i;
-					if(Word.matches("[0-9]+") && Integer.parseInt(Word)<=2147483647 && Integer.parseInt(Word)>=0) {
-						token_List.add(new PLPToken(PLPTokenKinds.Kind.INT_LITERAL, Word, line_Number, character_pos));
-						character_pos+=Word.length();
+					try {
+						if (Word.matches("[0-9]+") && Integer.parseInt(Word) <= 2147483647 && Integer.parseInt(Word) >= 0) {
+							token_List.add(new PLPToken(PLPTokenKinds.Kind.INT_LITERAL, Word, line_Number, character_pos));
+							character_pos += Word.length();
+						}
 					}
-
+					catch (Exception e) {
+						throw  new LexicalException("Integer value too large", line_Number, character_pos);
+					}
 				Word= "";
 				}
-				else if(Character.toString(input.charAt(i)).matches("[$&+,:;=?@#|'<>.^*()%!-]")){
-					isaSymbol(Character.toString(input.charAt(i)),line_Number,character_pos);
+				else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='['){
+					if(input.charAt(i)==input.charAt(i+1)){
+						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(i++));
+						switch (input.charAt(i)){
+							case '&' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.AND, Word, line_Number, character_pos));
+							case '|' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.OR, Word, line_Number, character_pos));
+							case '=' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.EQUALS, Word, line_Number, character_pos));
+						}
+						character_pos+=Word.length();
+					}
+					else if(input.charAt(i)=='!' && input.charAt(i+1)=='='){ // =,;:()[]<>!+-*/
+						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(i++));
+						token_List.add(new PLPToken(PLPTokenKinds.Kind.NOT_EQUALS, Word, line_Number, character_pos));
+						character_pos+=Word.length();
+					}
+					else {
+						if(isaSymbol(Character.toString(input.charAt(i)),line_Number,character_pos))
+							character_pos++;
+					}
 				}
+				//else if(!(Character.isLetter(input.charAt(i)) && Character.isDigit(input.charAt(i)) && (Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[')))
+					//	throw  new LexicalException("Illegal Character", line_Number, character_pos);
+
 				else{
 					character_pos++;
 				}
