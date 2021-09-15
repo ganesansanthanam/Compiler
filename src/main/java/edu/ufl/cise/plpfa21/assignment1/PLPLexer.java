@@ -37,7 +37,7 @@ public class PLPLexer implements IPLPLexer {
 		boolean CommentFlag = true;
 		String [] Lines = input.split("\n");
 		int BigL = input.length();
-		int line_Number=1,character_pos=0;
+		int line_Number=1,character_pos=0,letter_count=0;
 		if(input.isBlank()) {
 			token_List.add(new PLPToken(PLPTokenKinds.Kind.EOF,"",line_Number,character_pos));
 		}
@@ -48,6 +48,7 @@ public class PLPLexer implements IPLPLexer {
 				if(input.charAt(i)=='\n') {
 					line_Number++;
 					character_pos=-1;
+					letter_count=0;
 				}
 				if(Character.isLetter(input.charAt(i))) {
 					Word += input.charAt(i++);
@@ -112,10 +113,13 @@ public class PLPLexer implements IPLPLexer {
 								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_WHILE, Word, line_Number, character_pos));
 							}
 						}
+						character_pos+=Word.length();
 					}
 					else{
-						if(Word.matches("^([a-zA-Z_$][a-zA-Z\\\\d_$]*)$"))
+						if(Word.matches("^[a-zA-Z0-9]+$")) {
 							token_List.add(new PLPToken(PLPTokenKinds.Kind.IDENTIFIER, Word, line_Number, character_pos));
+							character_pos+=Word.length();
+						}
 					}
 				Word= "";
 				}
@@ -124,16 +128,22 @@ public class PLPLexer implements IPLPLexer {
 						Word+=input.charAt(i++);
 					}
 					--i;
-					if(Word.matches("[0-9]+") && Integer.parseInt(Word)<=2147483647 && Integer.parseInt(Word)>=0)
-						token_List.add(new PLPToken(PLPTokenKinds.Kind.IDENTIFIER, Word, line_Number, character_pos));
+					if(Word.matches("[0-9]+") && Integer.parseInt(Word)<=2147483647 && Integer.parseInt(Word)>=0) {
+						token_List.add(new PLPToken(PLPTokenKinds.Kind.INT_LITERAL, Word, line_Number, character_pos));
+						character_pos+=Word.length();
+					}
+
 				Word= "";
 				}
 				else if(Character.toString(input.charAt(i)).matches("[$&+,:;=?@#|'<>.^*()%!-]")){
 					isaSymbol(Character.toString(input.charAt(i)),line_Number,character_pos);
 				}
-				character_pos++;
+				else{
+					character_pos++;
+				}
+				//character_pos++;
 		}
 		}
-		token_List.add(new PLPToken(PLPTokenKinds.Kind.EOF,"",line_Number,character_pos));
+		token_List.add(new PLPToken(PLPTokenKinds.Kind.EOF,"",line_Number, 0));
 	}
 }
