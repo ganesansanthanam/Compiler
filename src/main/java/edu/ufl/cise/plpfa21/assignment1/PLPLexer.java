@@ -180,17 +180,35 @@ public class PLPLexer implements IPLPLexer {
 				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) == '\\' || input.charAt(i) =='%')
 					//throw  new LexicalException("Illegal Character", line_Number, character_pos);
 					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Integer value too large",line_Number,character_pos));
-				else if(input.charAt(i)=='\"'){
-					while (input.charAt(i++)!='\"'){
-						if(input.charAt(i)=='\\'){
+				else if(input.charAt(i)=='"'){
+					while (input.charAt(++i)!='"'){
+						switch (input.charAt(i)){
+							case '\b'-> Word+='\b';
+							case '\t'-> Word+='\t';
+							case '\n'-> Word+='\n';
+							case '\r'-> Word+='\r';
+							case '\f'-> Word+='\f';
+							case '\"'-> Word+='\"';
+							case '\''-> Word+='\'';
+							case '\\'-> Word+='\\';
+							case ' ' -> Word+=' ';
+						}
+						if(Character.isLetter(input.charAt(i)) || Character.isDigit(input.charAt(i))) {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[') {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%') {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i))=="\\"){
 							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
 						}
-						switch (input.charAt(i)){
-							case '\n': Word+='\n';
-
-						}
-						Word+=input.charAt(i);
 					}
+					Word = '\"' + Word + '\"';
+					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
+					Word="";
 				}
 				else{
 					character_pos++;

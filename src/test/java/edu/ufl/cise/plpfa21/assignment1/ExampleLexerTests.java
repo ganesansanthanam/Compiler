@@ -212,4 +212,28 @@ class ExampleLexerTests implements PLPTokenKinds {
 		});
 	}
 
+	@Test
+	public void test6() throws LexicalException {
+		String input = """
+				"string\n t\b \\ is right"
+				""";
+		IPLPLexer lexer = getLexer(input);
+		{
+			IPLPToken token = lexer.nextToken();
+			Kind kind = token.getKind();
+			assertEquals(kind, Kind.STRING_LITERAL);
+			int line = token.getLine();
+			assertEquals(line, 1);
+			int charPositionInLine = token.getCharPositionInLine();
+			assertEquals(charPositionInLine, 0);
+			String text = token.getText();
+			assertEquals("\"string\n t\b \\ is right\"",text);
+		}
+		{
+			IPLPToken token = lexer.nextToken();
+			Kind kind = token.getKind();
+			assertEquals(kind, Kind.EOF);
+		}
+	}
+
 }
