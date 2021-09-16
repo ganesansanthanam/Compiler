@@ -9,6 +9,10 @@ public class PLPLexer implements IPLPLexer {
 	public IPLPToken nextToken() throws LexicalException {
 		// TODO Auto-generated method stub
 		int id=getTokenId();
+		if(token_List.get(id-1).getKind()== PLPTokenKinds.Kind.ERROR) {
+			id--;
+			throw new LexicalException(token_List.get(id).getText(), token_List.get(id).getLine(),token_List.get(id).getCharPositionInLine());
+		}
 		return token_List.get(--id);
 	}
 	private static int getTokenId(){
@@ -42,14 +46,12 @@ public class PLPLexer implements IPLPLexer {
 	public PLPLexer(String input) throws LexicalException {
 		token_List= new ArrayList<IPLPToken>();
 		tokenId=0;
-		enum State { START, SYMBOL, IDENTIFIER, IntLiteral, StringLiteral, EscapeSequence, Comment };
+		//enum State { START, SYMBOL, IDENTIFIER, IntLiteral, StringLiteral, EscapeSequence, Comment };
 		String[] Keywords= {"VAR","VAL","FUN","DO","END","LET","SWITCH","CASE","DEFAULT","IF","WHILE","RETURN","NIL"
 				,"TRUE","FALSE","INT","STRING","BOOLEAN","LIST"};
 		List<String> KeywordList = Arrays.asList(Keywords);
-		State state = State.START;
-		HashMap<Integer, String> sentence_mapper = new HashMap<Integer, String>();
+		//State state = State.START;
 		boolean CommentFlag = true;
-		String [] Lines = input.split("\n");
 		int BigL = input.length();
 		int line_Number=1,character_pos=0,letter_count=0;
 		if(input.isBlank()) {
@@ -149,7 +151,8 @@ public class PLPLexer implements IPLPLexer {
 						}
 					}
 					catch (Exception e) {
-						throw  new LexicalException("Integer value too large", line_Number, character_pos);
+						//throw  new LexicalException("Integer value too large", line_Number, character_pos);
+						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Integer value too large",line_Number,character_pos));
 					}
 				Word= "";
 				}
@@ -172,10 +175,23 @@ public class PLPLexer implements IPLPLexer {
 						if(isaSymbol(Character.toString(input.charAt(i)),line_Number,character_pos))
 							character_pos++;
 					}
+					Word="";
 				}
-				//else if(!(Character.isLetter(input.charAt(i)) && Character.isDigit(input.charAt(i)) && (Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[')))
-					//	throw  new LexicalException("Illegal Character", line_Number, character_pos);
+				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) == '\\' || input.charAt(i) =='%')
+					//throw  new LexicalException("Illegal Character", line_Number, character_pos);
+					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Integer value too large",line_Number,character_pos));
+				else if(input.charAt(i)=='\"'){
+					while (input.charAt(i++)!='\"'){
+						if(input.charAt(i)=='\\'){
+							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
+						}
+						switch (input.charAt(i)){
+							case '\n': Word+='\n';
 
+						}
+						Word+=input.charAt(i);
+					}
+				}
 				else{
 					character_pos++;
 				}
