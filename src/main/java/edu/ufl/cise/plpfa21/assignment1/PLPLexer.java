@@ -68,7 +68,7 @@ public class PLPLexer implements IPLPLexer {
 				}
 				if(Character.isLetter(input.charAt(i))) {
 					Word += input.charAt(i++);
-					while (i < BigL && (Character.isLetterOrDigit(input.charAt(i)) || input.charAt(i) == '$' || input.charAt(i) == '_')) {
+					while (BigL > i && (Character.isLetterOrDigit(input.charAt(i)) || input.charAt(i) == '$' || input.charAt(i) == '_')) {
 						Word += input.charAt(i++);
 					}
 					--i;
@@ -140,7 +140,7 @@ public class PLPLexer implements IPLPLexer {
 				Word= "";
 				}
 				else if(Character.isDigit(input.charAt(i))) {
-					while(i<input.length()&&(Character.isDigit(input.charAt(i)))){
+					while((Character.isDigit(input.charAt(i))) && BigL>i){
 						Word+=input.charAt(i++);
 					}
 					--i;
@@ -151,7 +151,6 @@ public class PLPLexer implements IPLPLexer {
 						}
 					}
 					catch (Exception e) {
-						//throw  new LexicalException("Integer value too large", line_Number, character_pos);
 						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Integer value too large",line_Number,character_pos));
 					}
 				Word= "";
@@ -177,11 +176,11 @@ public class PLPLexer implements IPLPLexer {
 					}
 					Word="";
 				}
-				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) == '\\' || input.charAt(i) =='%')
+				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%')
 					//throw  new LexicalException("Illegal Character", line_Number, character_pos);
-					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Integer value too large",line_Number,character_pos));
+					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Illegal characters",line_Number,character_pos));
 				else if(input.charAt(i)=='"'){
-					while (input.charAt(++i)!='"'){
+					while (input.charAt(++i)!='"' && BigL>i){
 						switch (input.charAt(i)){
 							case '\b'-> Word+='\b';
 							case '\t'-> Word+='\t';
@@ -209,6 +208,12 @@ public class PLPLexer implements IPLPLexer {
 					Word = '\"' + Word + '\"';
 					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
 					Word="";
+				}
+				else if(input.charAt(i)=='/' && input.charAt(i+1)=='*'){
+					i+=2;
+					while (input.charAt(i)!='*' && BigL>i && input.charAt(i+1)!='/'){
+						i++;
+					}
 				}
 				else{
 					character_pos++;
