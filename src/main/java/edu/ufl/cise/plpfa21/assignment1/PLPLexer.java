@@ -43,7 +43,7 @@ public class PLPLexer implements IPLPLexer {
 		}
 		return false;
 	}
-	public PLPLexer(String input) throws LexicalException {
+	public PLPLexer(String input){
 		token_List= new ArrayList<IPLPToken>();
 		tokenId=0;
 		//enum State { START, SYMBOL, IDENTIFIER, IntLiteral, StringLiteral, EscapeSequence, Comment };
@@ -173,7 +173,7 @@ public class PLPLexer implements IPLPLexer {
 						character_pos+=Word.length();
 					}
 					else if(input.charAt(i)=='!' && input.charAt(i+1)=='='){ // =,;:()[]<>!+-*/
-						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(i++));
+						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(++i));
 						token_List.add(new PLPToken(PLPTokenKinds.Kind.NOT_EQUALS, Word, line_Number, character_pos));
 						character_pos+=Word.length();
 					}
@@ -212,6 +212,36 @@ public class PLPLexer implements IPLPLexer {
 						}
 					}
 					Word = '\"' + Word + '\"';
+					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
+					Word="";
+				}
+				else if(Character.toString(input.charAt(i)).equals("'")){
+					while (!(Character.toString(input.charAt(i)).equals("'")) && BigL>i){
+						switch (input.charAt(i)){
+							case '\b'-> Word+='\b';
+							case '\t'-> Word+='\t';
+							case '\n'-> Word+='\n';
+							case '\r'-> Word+='\r';
+							case '\f'-> Word+='\f';
+							case '\"'-> Word+='\"';
+							case '\''-> Word+='\'';
+							case '\\'-> Word+='\\';
+							case ' ' -> Word+=' ';
+						}
+						if(Character.isLetter(input.charAt(i)) || Character.isDigit(input.charAt(i))) {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[') {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%') {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i))=="\\"){
+							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
+						}
+					}
+					Word = '\'' + Word + '\'';
 					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
 					Word="";
 				}
