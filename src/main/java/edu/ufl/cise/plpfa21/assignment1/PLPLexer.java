@@ -53,7 +53,7 @@ public class PLPLexer implements IPLPLexer {
 		//State state = State.START;
 		boolean CommentFlag = true;
 		int BigL = input.length();
-		int line_Number=1,character_pos=0,letter_count=0;
+		int line_Number=1,character_pos=0;//,letter_count=0;
 		if(input.isBlank()) {
 			token_List.add(new PLPToken(PLPTokenKinds.Kind.EOF,"",line_Number,character_pos));
 		}
@@ -64,7 +64,7 @@ public class PLPLexer implements IPLPLexer {
 				if(input.charAt(i)=='\n') {
 					line_Number++;
 					character_pos=-1;
-					letter_count=0;
+					//letter_count=0;
 				}
 				if(Character.isLetter(input.charAt(i))) {
 					Word += input.charAt(i++);
@@ -157,8 +157,11 @@ public class PLPLexer implements IPLPLexer {
 				}
 				else if(input.charAt(i)=='/' && input.charAt(i+1)=='*'){
 					i+=2;
-					while (BigL>i && input.charAt(i)!='*' && input.charAt(i+1)!='/'){
+					while (BigL-1>i && input.charAt(i)!='*' && input.charAt(i+1)!='/'){
 						i++;
+					}
+					if(input.charAt(i-1)!='*' && input.charAt(i)!='/'){
+						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Comments not closed properly",line_Number,character_pos));
 					}
 					i++;
 				}
