@@ -72,7 +72,7 @@ public class PLPLexer implements IPLPLexer {
 						Word += input.charAt(i++);
 					}
 					--i;
-					if (KeywordList.contains(Word.toUpperCase()) && Word.matches("^([a-zA-Z_$][a-zA-Z\\\\d_$]*)$")) {
+					if (KeywordList.contains(Word) && Word.matches("^([a-zA-Z_$][a-zA-Z\\\\d_$]*)$")) {
 						switch (Word.toUpperCase()) {
 							case "VAR" -> {
 								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_VAR, Word, line_Number, character_pos));
@@ -140,7 +140,7 @@ public class PLPLexer implements IPLPLexer {
 				Word= "";
 				}
 				else if(Character.isDigit(input.charAt(i))) {
-					while((Character.isDigit(input.charAt(i))) && BigL>i){
+					while(BigL>i && (Character.isDigit(input.charAt(i)))){
 						Word+=input.charAt(i++);
 					}
 					--i;
@@ -157,7 +157,7 @@ public class PLPLexer implements IPLPLexer {
 				}
 				else if(input.charAt(i)=='/' && input.charAt(i+1)=='*'){
 					i+=2;
-					while (input.charAt(i)!='*' && BigL>i && input.charAt(i+1)!='/'){
+					while (BigL>i && input.charAt(i)!='*' && input.charAt(i+1)!='/'){
 						i++;
 					}
 					i++;
@@ -186,7 +186,7 @@ public class PLPLexer implements IPLPLexer {
 				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%')
 					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Illegal characters",line_Number,character_pos));
 				else if(input.charAt(i)=='"'){
-					while (input.charAt(++i)!='"' && BigL>i){
+					while ( BigL>i && input.charAt(++i)!='"'){
 						switch (input.charAt(i)){
 							case '\b'-> Word+='\b';
 							case '\t'-> Word+='\t';
@@ -216,7 +216,7 @@ public class PLPLexer implements IPLPLexer {
 					Word="";
 				}
 				else if(Character.toString(input.charAt(i)).equals("'")){
-					while (!(Character.toString(input.charAt(i)).equals("'")) && BigL>i){
+					while (BigL>i && !(Character.toString(input.charAt(i)).equals("'"))){
 						switch (input.charAt(i)){
 							case '\b'-> Word+='\b';
 							case '\t'-> Word+='\t';
