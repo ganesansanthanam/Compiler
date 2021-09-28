@@ -73,9 +73,15 @@ public class PLPLexer implements IPLPLexer {
 					}
 					--i;
 					if (KeywordList.contains(Word) && Word.matches("^([a-zA-Z_$][a-zA-Z\\\\d_$]*)$")) {
-						switch (Word.toUpperCase()) {
+						switch (Word) {
 							case "VAR" -> {
 								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_VAR, Word, line_Number, character_pos));
+							}
+							case "VAL" -> {
+								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_VAL, Word, line_Number, character_pos));
+							}
+							case "SWITCH" -> {
+								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_SWITCH, Word, line_Number, character_pos));
 							}
 							case "CASE" -> {
 								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_CASE, Word, line_Number, character_pos));
@@ -97,6 +103,9 @@ public class PLPLexer implements IPLPLexer {
 							}
 							case "END" -> {
 								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_END, Word, line_Number, character_pos));
+							}
+							case "TRUE" -> {
+								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_TRUE, Word, line_Number, character_pos));
 							}
 							case "FALSE" -> {
 								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_FALSE, Word, line_Number, character_pos));
@@ -166,7 +175,7 @@ public class PLPLexer implements IPLPLexer {
 					i++;
 				}
 				else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='['){
-					if(input.charAt(i)==input.charAt(i+1)){
+					if(input.charAt(i)==input.charAt(i+1) && Character.toString(input.charAt(i)).matches("[&=|]")){
 						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(i++));
 						switch (input.charAt(i)){
 							case '&' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.AND, Word, line_Number, character_pos));
