@@ -170,16 +170,17 @@ public class PLPLexer implements IPLPLexer {
 				else if(input.charAt(i)=='/' && input.charAt(i+1)=='*'){
 					i+=2;
 					while (BigL-1>i && input.charAt(i)!='*' && input.charAt(i+1)!='/'){
-						i++;
+						++i;
 					}
-					if(input.charAt(i-1)!='*' && input.charAt(i)!='/'){
+					Boolean condition = BigL==i && input.charAt(i-1)!='*' && input.charAt(i)!='/';
+					if(condition){
 						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Comments not closed properly",line_Number,character_pos));
 					}
 					i++;
 				}
 
-				else if(Character.toString(input.charAt(i)).equals("'")){
-					while (BigL>i && !(Character.toString(input.charAt(i)).equals("'"))){
+				else if(Character.toString(input.charAt(i)).equals("\'")){
+					while (BigL>i && !(Character.toString(input.charAt(++i)).equals("\'"))){
 						switch (input.charAt(i)){
 							case '\b'-> Word+='\b';
 							case '\t'-> Word+='\t';
@@ -204,7 +205,7 @@ public class PLPLexer implements IPLPLexer {
 							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
 						}
 					}
-					if((Character.toString(input.charAt(i)).equals("'"))){
+					if(BigL==i && !(Character.toString(input.charAt(i)).equals("\'"))){
 						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"String literals not closed properly ",line_Number,character_pos));
 					}
 					Word = '\'' + Word + '\'';
@@ -263,7 +264,7 @@ public class PLPLexer implements IPLPLexer {
 							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
 						}
 					}
-					if(input.charAt(i)!='"'){
+					if(BigL==i && input.charAt(i)!='"'){
 						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"String literals not closed properly ",line_Number,character_pos));
 					}
 					Word = '\"' + Word + '\"';
