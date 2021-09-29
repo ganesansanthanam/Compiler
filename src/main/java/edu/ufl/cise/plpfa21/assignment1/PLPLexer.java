@@ -198,11 +198,8 @@ public class PLPLexer implements IPLPLexer {
 						else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[') {
 							Word += input.charAt(i);
 						}
-						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%') {
+						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.?]") || input.charAt(i) =='%') {
 							Word += input.charAt(i);
-						}
-						else if(Character.toString(input.charAt(i))=="\\"){
-							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
 						}
 					}
 					if(BigL==i && !(Character.toString(input.charAt(i)).equals("\'"))){
@@ -257,11 +254,8 @@ public class PLPLexer implements IPLPLexer {
 						else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[') {
 							Word += input.charAt(i);
 						}
-						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%') {
+						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.?]") || input.charAt(i) =='%') {
 							Word += input.charAt(i);
-						}
-						else if(Character.toString(input.charAt(i))=="\\"){
-							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
 						}
 					}
 					if(BigL==i && input.charAt(i)!='"'){

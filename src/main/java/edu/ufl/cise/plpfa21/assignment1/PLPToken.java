@@ -1,5 +1,6 @@
 package edu.ufl.cise.plpfa21.assignment1;
 
+import java.io.StringBufferInputStream;
 import java.util.HashMap;
 
 @SuppressWarnings("unused")
@@ -41,7 +42,27 @@ public class PLPToken implements IPLPToken {
 	@Override
 	public String getStringValue() {
 		// TODO Auto-generated method stub
-		return this.texty;
+		String input = this.texty;
+		int BigL= input.length();
+		String Word="";
+		for(int i=1; i<BigL-1;i++){
+			if(input.charAt(i)=='\\'){
+				++i;
+				switch (input.charAt(i)){
+					case 'b'-> Word+='\b'; // \\n
+					case 't'-> Word+='\t';
+					case 'n'-> Word+='\n';
+					case 'r'-> Word+='\r';
+					case 'f'-> Word+='\f';
+					case '"'-> Word+='"';
+					case '\''-> Word+='\'';
+					case ' ' -> Word+=' ';
+				}
+				continue;
+			}
+			Word+=input.charAt(i);
+		}
+		return Word;
 	}
 
 	@Override
