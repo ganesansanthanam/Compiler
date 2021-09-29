@@ -33,7 +33,7 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.EOF);
         }
         else {
-            throw new SyntaxException("Illegal Statement/ Syntax error",token.getLine(),token.getCharPositionInLine());
+            throw new SyntaxException("Illegal Statement - VAR,VAL,FUN",token.getLine(),token.getCharPositionInLine());
         }
     }
 
@@ -57,6 +57,9 @@ public class PLPParser implements IPLPParser{
         }
         else if(k.equals(Kind.KW_FUN)) {
             Function();
+        }
+        else {
+            throw new SyntaxException("Illegal Statement - VAR,VAL,FUN",token.getLine(),token.getCharPositionInLine());
         }
     }
 
@@ -128,16 +131,22 @@ public class PLPParser implements IPLPParser{
         else if(expressionFirst.contains(token.getKind())){
             Expression();
             if (token.getKind().equals(Kind.ASSIGN)){
+                matchToken(Kind.ASSIGN);
                 Expression();
             }
             matchToken(Kind.SEMI);
+        }
+        else {
+            throw new SyntaxException("Illegal Statement/ Syntax error",token.getLine(),token.getCharPositionInLine());
         }
     }
 
     private void NameDef() throws SyntaxException {
         matchToken(Kind.IDENTIFIER);
-        matchToken(Kind.COLON);
-        Type();
+        if (token.getKind().equals(Kind.COLON)) {
+            matchToken(Kind.COLON);
+            Type();
+        }
     }
 
     private void Expression() throws SyntaxException {
@@ -296,11 +305,12 @@ public class PLPParser implements IPLPParser{
                             }
                         }
                     }
+                    else {
+                        matchToken(token.getKind());
+                    }
                 }
             }
-            else {
-                matchToken(token.getKind());
-            }
+            else matchToken(token.getKind());
         }
     }
 
@@ -318,7 +328,7 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.RSQUARE);
         }
         else {
-            throw new SyntaxException("Illegal Type/ Syntax error",token.getLine(),token.getCharPositionInLine());
+            throw new SyntaxException("Illegal Type - INT, STRING, ",token.getLine(),token.getCharPositionInLine());
         }
     }
 
