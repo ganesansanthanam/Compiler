@@ -12,8 +12,8 @@ public class CompilerComponentFactory {
 	}
 	public static IPLPParser getParser(String input){
 		//TODO  create and return a Parser instance to parse the given input.
-		return new PLPParser(input);
+		IPLPLexer lexer = getLexer(input);
+		IPLPParser parser = new PLPParser(lexer);
+		return parser;
 	}
-	
-
 }

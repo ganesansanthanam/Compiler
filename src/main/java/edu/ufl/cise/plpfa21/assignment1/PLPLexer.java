@@ -66,6 +66,7 @@ public class PLPLexer implements IPLPLexer {
 					character_pos=-1;
 					//letter_count=0;
 				}
+
 				if(Character.isLetter(input.charAt(i))) {
 					Word += input.charAt(i++);
 					while (BigL > i && (Character.isLetterOrDigit(input.charAt(i)) || input.charAt(i) == '$' || input.charAt(i) == '_')) {
@@ -148,6 +149,7 @@ public class PLPLexer implements IPLPLexer {
 					}
 				Word= "";
 				}
+
 				else if(Character.isDigit(input.charAt(i))) {
 					while(BigL>i && (Character.isDigit(input.charAt(i)))){
 						Word+=input.charAt(i++);
@@ -164,6 +166,7 @@ public class PLPLexer implements IPLPLexer {
 					}
 				Word= "";
 				}
+
 				else if(input.charAt(i)=='/' && input.charAt(i+1)=='*'){
 					i+=2;
 					while (BigL-1>i && input.charAt(i)!='*' && input.charAt(i+1)!='/'){
@@ -174,59 +177,7 @@ public class PLPLexer implements IPLPLexer {
 					}
 					i++;
 				}
-				else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='['){
-					if(input.charAt(i)==input.charAt(i+1) && Character.toString(input.charAt(i)).matches("[&=|]")){
-						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(i++));
-						switch (input.charAt(i)){
-							case '&' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.AND, Word, line_Number, character_pos));
-							case '|' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.OR, Word, line_Number, character_pos));
-							case '=' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.EQUALS, Word, line_Number, character_pos));
-						}
-						character_pos+=Word.length();
-					}
-					else if(input.charAt(i)=='!' && input.charAt(i+1)=='='){ // =,;:()[]<>!+-*/
-						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(++i));
-						token_List.add(new PLPToken(PLPTokenKinds.Kind.NOT_EQUALS, Word, line_Number, character_pos));
-						character_pos+=Word.length();
-					}
-					else {
-						if(isaSymbol(Character.toString(input.charAt(i)),line_Number,character_pos))
-							character_pos++;
-					}
-					Word="";
-				}
-				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%')
-					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Illegal characters",line_Number,character_pos));
-				else if(input.charAt(i)=='"'){
-					while ( BigL>i && input.charAt(++i)!='"'){
-						switch (input.charAt(i)){
-							case '\b'-> Word+='\b';
-							case '\t'-> Word+='\t';
-							case '\n'-> Word+='\n';
-							case '\r'-> Word+='\r';
-							case '\f'-> Word+='\f';
-							case '\"'-> Word+='\"';
-							case '\''-> Word+='\'';
-							case '\\'-> Word+='\\';
-							case ' ' -> Word+=' ';
-						}
-						if(Character.isLetter(input.charAt(i)) || Character.isDigit(input.charAt(i))) {
-							Word += input.charAt(i);
-						}
-						else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[') {
-							Word += input.charAt(i);
-						}
-						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%') {
-							Word += input.charAt(i);
-						}
-						else if(Character.toString(input.charAt(i))=="\\"){
-							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
-						}
-					}
-					Word = '\"' + Word + '\"';
-					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
-					Word="";
-				}
+
 				else if(Character.toString(input.charAt(i)).equals("'")){
 					while (BigL>i && !(Character.toString(input.charAt(i)).equals("'"))){
 						switch (input.charAt(i)){
@@ -253,10 +204,73 @@ public class PLPLexer implements IPLPLexer {
 							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
 						}
 					}
+					if((Character.toString(input.charAt(i)).equals("'"))){
+						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"String literals not closed properly ",line_Number,character_pos));
+					}
 					Word = '\'' + Word + '\'';
 					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
 					Word="";
 				}
+
+				else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='['){
+					if(input.charAt(i)==input.charAt(i+1) && Character.toString(input.charAt(i)).matches("[&=|]")){
+						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(i++));
+						switch (input.charAt(i)){
+							case '&' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.AND, Word, line_Number, character_pos));
+							case '|' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.OR, Word, line_Number, character_pos));
+							case '=' -> token_List.add(new PLPToken(PLPTokenKinds.Kind.EQUALS, Word, line_Number, character_pos));
+						}
+						character_pos+=Word.length();
+					}
+					else if(input.charAt(i)=='!' && input.charAt(i+1)=='='){ // =,;:()[]<>!+-*/
+						Word= Character.toString(input.charAt(i))+Character.toString(input.charAt(++i));
+						token_List.add(new PLPToken(PLPTokenKinds.Kind.NOT_EQUALS, Word, line_Number, character_pos));
+						character_pos+=Word.length();
+					}
+					else {
+						if(isaSymbol(Character.toString(input.charAt(i)),line_Number,character_pos))
+							character_pos++;
+					}
+					Word="";
+				}
+
+				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%')
+					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Illegal characters",line_Number,character_pos));
+
+				else if(input.charAt(i)=='"'){
+					while ( BigL>i && input.charAt(++i)!='"'){
+						switch (input.charAt(i)){
+							case '\b'-> Word+='\b';
+							case '\t'-> Word+='\t';
+							case '\n'-> Word+='\n';
+							case '\r'-> Word+='\r';
+							case '\f'-> Word+='\f';
+							case '\"'-> Word+='\"';
+							case '\''-> Word+='\'';
+							case '\\'-> Word+='\\';
+							case ' ' -> Word+=' ';
+						}
+						if(Character.isLetter(input.charAt(i)) || Character.isDigit(input.charAt(i))) {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i)).matches("[&+,:;=|<>/*()!-]") || input.charAt(i)==']' || input.charAt(i)=='[') {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%') {
+							Word += input.charAt(i);
+						}
+						else if(Character.toString(input.charAt(i))=="\\"){
+							token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"single front slash not allowed",line_Number,character_pos));
+						}
+					}
+					if(input.charAt(i)!='"'){
+						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"String literals not closed properly ",line_Number,character_pos));
+					}
+					Word = '\"' + Word + '\"';
+					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
+					Word="";
+				}
+
 				else{
 					character_pos++;
 				}
