@@ -207,6 +207,7 @@ public class PLPLexer implements IPLPLexer {
 					}
 					Word = '\'' + Word + '\'';
 					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
+					character_pos+=Word.length();
 					Word="";
 				}
 
@@ -227,13 +228,15 @@ public class PLPLexer implements IPLPLexer {
 					}
 					else {
 						if(isaSymbol(Character.toString(input.charAt(i)),line_Number,character_pos))
-							character_pos++;
+							++character_pos;
 					}
 					Word="";
 				}
 
-				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%')
-					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Illegal characters",line_Number,character_pos));
+				else if(Character.toString(input.charAt(i)).matches("[`~!@#$%^_{}.'?]") || input.charAt(i) =='%') {
+					token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR, "Illegal characters", line_Number, character_pos));
+					++character_pos;
+				}
 
 				else if(input.charAt(i)=='"'){
 					while ( BigL>i && input.charAt(++i)!='"'){
@@ -263,6 +266,7 @@ public class PLPLexer implements IPLPLexer {
 					}
 					Word = '\"' + Word + '\"';
 					token_List.add(new PLPToken(PLPTokenKinds.Kind.STRING_LITERAL,Word,line_Number,character_pos));
+					character_pos+=Word.length();
 					Word="";
 				}
 
