@@ -101,6 +101,20 @@ class ExampleParserTests {
 		""";
 		noErrorParse(input);
 	}
-	
+
+	@Test public void test7() throws SyntaxException  {
+		String input = """
+		FUN soln(a, b:LIST[], c:STRING, d:LIST[INT]):INT DO
+		SWITCH a<6
+		CASE a+2: LET a=2*5;
+		DEFAULT RETURN a&&b;
+		END
+		IF b==d && !a DO 4*6; END
+		END
+		VAL a = 1-5;
+		VAR a:STRING = "thisisa \nstring";
+		""";
+		noErrorParse(input);
+	}
 
 }
