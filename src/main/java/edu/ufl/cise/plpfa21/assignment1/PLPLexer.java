@@ -67,13 +67,13 @@ public class PLPLexer implements IPLPLexer {
 					//letter_count=0;
 				}
 
-				if(Character.isLetter(input.charAt(i))) {
+				if(Character.isLetter(input.charAt(i)) || input.charAt(i)=='_' || input.charAt(i)=='$') {
 					Word += input.charAt(i++);
 					while (BigL > i && (Character.isLetterOrDigit(input.charAt(i)) || input.charAt(i) == '$' || input.charAt(i) == '_')) {
 						Word += input.charAt(i++);
 					}
 					--i;
-					if (KeywordList.contains(Word) && Word.matches("^([a-zA-Z_$][a-zA-Z\\\\d_$]*)$")) {
+					if (KeywordList.contains(Word)) {
 						switch (Word) {
 							case "VAR" -> {
 								token_List.add(new PLPToken(PLPTokenKinds.Kind.KW_VAR, Word, line_Number, character_pos));
