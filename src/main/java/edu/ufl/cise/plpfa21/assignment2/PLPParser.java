@@ -34,7 +34,8 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.EOF);
         }
         else {
-            throw new SyntaxException("Illegal Statement - VAR,VAL,FUN",token.getLine(),token.getCharPositionInLine());
+            String errorMessage = "Illegal Statement - VAR,VAL,FUN Line: " + token.getLine() + " Charposition: " + token.getCharPositionInLine();
+            throw new SyntaxException(errorMessage,token.getLine(),token.getCharPositionInLine());
         }
     }
 
@@ -60,7 +61,8 @@ public class PLPParser implements IPLPParser{
             Function();
         }
         else {
-            throw new SyntaxException("Illegal Statement - VAR,VAL,FUN",token.getLine(),token.getCharPositionInLine());
+            String errorMessage = "Illegal Statement - VAR,VAL,FUN Line: " + token.getLine() + " Charposition: " + token.getCharPositionInLine();
+            throw new SyntaxException(errorMessage,token.getLine(),token.getCharPositionInLine());
         }
     }
 
@@ -172,7 +174,8 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.SEMI);
         }
         else {
-            throw new SyntaxException("Illegal Statement/ Syntax error",token.getLine(),token.getCharPositionInLine());
+            String errorMessage = "Illegal Statement - needs LET, IF, WHILE, SWITCH, RETURN OR EXPRESSION Line: " + token.getLine() + " Charposition: " + token.getCharPositionInLine();
+            throw new SyntaxException(errorMessage,token.getLine(),token.getCharPositionInLine());
         }
     }
 
@@ -363,7 +366,8 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.RSQUARE);
         }
         else {
-            throw new SyntaxException("Illegal Type - INT, STRING, ",token.getLine(),token.getCharPositionInLine());
+            String errorMessage = "Illegal Type - INT, STRING, LIST Line " + token.getLine() + " Charposition: " + token.getCharPositionInLine();
+            throw new SyntaxException(errorMessage,token.getLine(),token.getCharPositionInLine());
         }
     }
 
@@ -376,7 +380,8 @@ public class PLPParser implements IPLPParser{
         {
             return consumeToken();
         }
-        throw new SyntaxException("--Illegal syntax--\t" + "Missing: " + kind.toString(),token.getLine(),token.getCharPositionInLine());
+        String errorMessage = "Illegal syntax Missing: " + kind.toString() + " Line: " + token.getLine() + " Charposition: " + token.getCharPositionInLine();
+        throw new SyntaxException(errorMessage,token.getLine(),token.getCharPositionInLine());
     }
 
     private IPLPToken consumeToken() throws SyntaxException, LexicalException {
