@@ -28,7 +28,9 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.EOF);
         }
         else if((k.equals(Kind.KW_VAL) || k.equals(Kind.KW_VAR) || k.equals(Kind.KW_FUN))){
-            Declaration();
+            while (!(token.getKind().equals(Kind.EOF))) {
+                Declaration();
+            }
             matchToken(Kind.EOF);
         }
         else {
@@ -94,6 +96,28 @@ public class PLPParser implements IPLPParser{
         blockFirst.add(Kind.KW_IF);
         blockFirst.add(Kind.KW_WHILE);
         blockFirst.add(Kind.KW_RETURN);
+        blockFirst.add(Kind.KW_NIL);
+        blockFirst.add(Kind.KW_TRUE);
+        blockFirst.add(Kind.KW_FALSE);
+        blockFirst.add(Kind.INT_LITERAL);
+        blockFirst.add(Kind.STRING_LITERAL);
+        blockFirst.add(Kind.LPAREN);
+        blockFirst.add(Kind.IDENTIFIER);
+        blockFirst.add(Kind.BANG);
+        blockFirst.add(Kind.MINUS);
+        while (blockFirst.contains(token.getKind())){
+            Statement();
+        }
+    }
+
+    private void Statement() throws SyntaxException, LexicalException {
+        ArrayList<Kind> statementFirst = new ArrayList<Kind>();
+        ArrayList<Kind> expressionFirst = new ArrayList<Kind>();
+        statementFirst.add(Kind.KW_LET);
+        statementFirst.add(Kind.KW_SWITCH);
+        statementFirst.add(Kind.KW_IF);
+        statementFirst.add(Kind.KW_WHILE);
+        statementFirst.add(Kind.KW_RETURN);
         expressionFirst.add(Kind.KW_NIL);
         expressionFirst.add(Kind.KW_TRUE);
         expressionFirst.add(Kind.KW_FALSE);
@@ -103,7 +127,7 @@ public class PLPParser implements IPLPParser{
         expressionFirst.add(Kind.IDENTIFIER);
         expressionFirst.add(Kind.BANG);
         expressionFirst.add(Kind.MINUS);
-        if(blockFirst.contains(token.getKind())){
+        if(statementFirst.contains(token.getKind())){
             if(token.getKind().equals(Kind.KW_LET)){
                 matchToken(Kind.KW_LET);
                 NameDef();
@@ -125,7 +149,19 @@ public class PLPParser implements IPLPParser{
                 Expression();
                 matchToken(Kind.SEMI);
             }
-
+            else if(token.getKind().equals(Kind.KW_SWITCH)){
+                matchToken(Kind.KW_SWITCH);
+                Expression();
+                while (token.getKind().equals(Kind.KW_CASE)){
+                    matchToken(Kind.KW_CASE);
+                    Expression();
+                    matchToken(Kind.COLON);
+                    Block();
+                }
+                matchToken(Kind.KW_DEFAULT);
+                Block();
+                matchToken(Kind.KW_END);
+            }
         }
         else if(expressionFirst.contains(token.getKind())){
             Expression();
