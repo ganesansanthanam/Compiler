@@ -142,7 +142,7 @@ public class PLPLexer implements IPLPLexer {
 						character_pos+=Word.length();
 					}
 					else{
-						if(Word.matches("^[a-zA-Z0-9]+$")) {
+						if(Word.matches("[_$a-zA-Z][a-zA-Z0-9_$]*")) {
 							token_List.add(new PLPToken(PLPTokenKinds.Kind.IDENTIFIER, Word, line_Number, character_pos));
 							character_pos+=Word.length();
 						}
