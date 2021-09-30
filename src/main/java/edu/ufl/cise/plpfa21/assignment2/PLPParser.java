@@ -10,8 +10,7 @@ import java.util.List;
 public class PLPParser implements IPLPParser{
     IPLPLexer lex;
     IPLPToken token;
-    public  void parse() throws SyntaxException
-    {
+    public  void parse() throws SyntaxException, LexicalException {
         Program();
     }
 
@@ -23,7 +22,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void Program() throws SyntaxException {
+    private void Program() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         if(k.equals(Kind.EOF)){
             matchToken(Kind.EOF);
@@ -37,7 +36,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void Declaration() throws SyntaxException {
+    private void Declaration() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         if (k.equals(Kind.KW_VAL)) {
             matchToken(Kind.KW_VAL);
@@ -63,7 +62,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void Function() throws SyntaxException{
+    private void Function() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         if (k.equals(Kind.KW_FUN)){
             matchToken(Kind.KW_FUN);
@@ -87,7 +86,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void Block() throws SyntaxException {
+    private void Block() throws SyntaxException, LexicalException {
         ArrayList<Kind> blockFirst = new ArrayList<Kind>();
         ArrayList<Kind> expressionFirst = new ArrayList<Kind>();
         blockFirst.add(Kind.KW_LET);
@@ -141,7 +140,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void NameDef() throws SyntaxException {
+    private void NameDef() throws SyntaxException, LexicalException {
         matchToken(Kind.IDENTIFIER);
         if (token.getKind().equals(Kind.COLON)) {
             matchToken(Kind.COLON);
@@ -149,7 +148,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void Expression() throws SyntaxException {
+    private void Expression() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
@@ -166,7 +165,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void LogicalExpression() throws SyntaxException {
+    private void LogicalExpression() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
@@ -187,7 +186,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void ComparisonExpression() throws SyntaxException {
+    private void ComparisonExpression() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
@@ -208,7 +207,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void AdditiveExpression() throws SyntaxException {
+    private void AdditiveExpression() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
@@ -230,7 +229,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void MultiplicativeExpression() throws SyntaxException {
+    private void MultiplicativeExpression() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
@@ -251,7 +250,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void UnaryExpression() throws SyntaxException {
+    private void UnaryExpression() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
@@ -270,7 +269,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void PrimaryExpression() throws SyntaxException {
+    private void PrimaryExpression() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
@@ -314,7 +313,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private void Type() throws SyntaxException {
+    private void Type() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         if (k.equals(Kind.KW_INT) || k.equals(Kind.KW_STRING) || k.equals(Kind.KW_BOOLEAN)){
             matchToken(k);
@@ -332,8 +331,7 @@ public class PLPParser implements IPLPParser{
         }
     }
 
-    private IPLPToken matchToken(Kind kind) throws SyntaxException
-    {
+    private IPLPToken matchToken(Kind kind) throws SyntaxException, LexicalException {
         if (Kind.EOF.equals(token.getKind()))
         {
             return token;
@@ -345,15 +343,8 @@ public class PLPParser implements IPLPParser{
         throw new SyntaxException("--Illegal syntax--\t" + "Missing: " + kind.toString(),token.getLine(),token.getCharPositionInLine());
     }
 
-
-
-    private IPLPToken consumeToken() throws SyntaxException
-    {
-            IPLPToken prevToken = token;
-        try {
-            token = lex.nextToken();
-        } catch (LexicalException e) {
-        }
-        return prevToken;
+    private IPLPToken consumeToken() throws SyntaxException, LexicalException {
+        token = lex.nextToken();
+        return token;
     }
 }
