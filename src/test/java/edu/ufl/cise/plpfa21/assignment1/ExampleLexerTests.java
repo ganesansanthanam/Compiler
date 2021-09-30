@@ -215,7 +215,7 @@ class ExampleLexerTests implements PLPTokenKinds {
 	@Test
 	public void test6() throws LexicalException {
 		String input = """
-				"string\n t\b \\ is right"
+				"String \\' next line"
 				""";
 		IPLPLexer lexer = getLexer(input);
 		{
@@ -227,7 +227,8 @@ class ExampleLexerTests implements PLPTokenKinds {
 			int charPositionInLine = token.getCharPositionInLine();
 			assertEquals(charPositionInLine, 0);
 			String text = token.getText();
-			assertEquals("\"string\n t\b \\ is right\"",text);
+			String sTExt = token.getStringValue(); // \\n >> \n
+			assertEquals("String \' next line",sTExt);
 		}
 		{
 			IPLPToken token = lexer.nextToken();

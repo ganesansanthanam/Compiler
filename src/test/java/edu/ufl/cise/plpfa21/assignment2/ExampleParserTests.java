@@ -1,6 +1,5 @@
 package edu.ufl.cise.plpfa21.assignment2;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Assertions;
@@ -85,12 +84,23 @@ class ExampleParserTests {
 		String input = """
 		FUN func() DO
 		WHILE x>0 DO x=x-1 END
-		END
+		END 
 		""";
 		syntaxErrorParse(input,2,19);
 		}
 
-
+	@Test public void test6() throws SyntaxException  {
+		String input = """
+		VAL a= 10;
+		VAR b;
+		VAR c=a*b;
+		FUN sln(a:INT, b, c:STRING) DO
+		LET a:INT = 1*2;
+		WHILE x>d DO x=x/4; END
+		END
+		""";
+		noErrorParse(input);
+	}
 	
 
 }
