@@ -14,7 +14,7 @@ class MyTestCases implements PLPTokenKinds {
 	@Test
 	public void test0() throws LexicalException {
 		String input = """
-
+				TRUE$ FUN_
 				""";
 		IPLPLexer lexer = getLexer(input);
 		{
@@ -127,7 +127,7 @@ class MyTestCases implements PLPTokenKinds {
 	public void test4() throws LexicalException {
 		String input = """
 								
-				/*fsdfsd\n*/"
+				"string\ncheck"
 				""";
 		IPLPLexer lexer = getLexer(input);
 		assertThrows(LexicalException.class, () -> {
