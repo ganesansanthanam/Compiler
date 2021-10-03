@@ -172,7 +172,7 @@ public class PLPLexer implements IPLPLexer {
 					while (BigL-1>i && input.charAt(i)!='*' && input.charAt(i+1)!='/'){
 						++i;
 					}
-					Boolean condition = BigL==i && input.charAt(i-1)!='*' && input.charAt(i)!='/';
+					Boolean condition = BigL-1==i && input.charAt(i-1)!='*' && input.charAt(i)!='/';
 					if(condition){
 						token_List.add(new PLPToken(PLPTokenKinds.Kind.ERROR,"Comments not closed properly",line_Number,character_pos));
 					}

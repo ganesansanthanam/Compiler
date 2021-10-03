@@ -117,4 +117,25 @@ class ExampleParserTests {
 		noErrorParse(input);
 	}
 
+	@Test public void test8() throws SyntaxException  {
+		String input = """
+				FUN soln(a:LIST[LIST[INT]],d:LIST[INT]) DO
+				SWITCH aa==bb
+				CASE exam: LET ans=a*d;
+				DEFAULT RETURN a/d;
+				END
+				END
+				""";
+		noErrorParse(input);
+	}
+
+	@Test public void test9() throws SyntaxException  {
+		String input = """
+				FUN f()
+				DO
+				   RETURN;
+				END
+				""";
+		syntaxErrorParse(input,3,9);
+	}
 }

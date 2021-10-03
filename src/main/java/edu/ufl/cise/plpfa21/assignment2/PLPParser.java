@@ -25,13 +25,13 @@ public class PLPParser implements IPLPParser{
     private void Program() throws SyntaxException, LexicalException {
         Kind k = token.getKind();
         if(k.equals(Kind.EOF)){
-            matchToken(Kind.EOF);
+            matchEOF();
         }
         else if((k.equals(Kind.KW_VAL) || k.equals(Kind.KW_VAR) || k.equals(Kind.KW_FUN))){
             while (!(token.getKind().equals(Kind.EOF))) {
                 Declaration();
             }
-            matchToken(Kind.EOF);
+            matchEOF();
         }
         else {
             String errorMessage = "Illegal Statement - VAR,VAL,FUN Line: " + token.getLine() + " Charposition: " + token.getCharPositionInLine();
@@ -202,6 +202,9 @@ public class PLPParser implements IPLPParser{
         if (kindList.contains(k)){
             LogicalExpression();
         }
+        else {
+            throw new SyntaxException("Not a valid expression",token.getLine(),token.getCharPositionInLine());
+        }
     }
 
     private void LogicalExpression() throws SyntaxException, LexicalException {
@@ -223,6 +226,9 @@ public class PLPParser implements IPLPParser{
                 ComparisonExpression();
             }
         }
+        else {
+            throw new SyntaxException("Not a valid logical expression",token.getLine(),token.getCharPositionInLine());
+        }
     }
 
     private void ComparisonExpression() throws SyntaxException, LexicalException {
@@ -243,6 +249,9 @@ public class PLPParser implements IPLPParser{
                 matchToken(token.getKind());
                 AdditiveExpression();
             }
+        }
+        else {
+            throw new SyntaxException("Not a valid Comparison expression",token.getLine(),token.getCharPositionInLine());
         }
     }
 
@@ -266,6 +275,9 @@ public class PLPParser implements IPLPParser{
             }
 
         }
+        else {
+            throw new SyntaxException("Not a valid Additive expression",token.getLine(),token.getCharPositionInLine());
+        }
     }
 
     private void MultiplicativeExpression() throws SyntaxException, LexicalException {
@@ -287,6 +299,9 @@ public class PLPParser implements IPLPParser{
                 UnaryExpression();
             }
         }
+        else {
+            throw new SyntaxException("Not a valid Multiplicative expression",token.getLine(),token.getCharPositionInLine());
+        }
     }
 
     private void UnaryExpression() throws SyntaxException, LexicalException {
@@ -306,10 +321,12 @@ public class PLPParser implements IPLPParser{
         else if (kindList.contains(k)){
             PrimaryExpression();
         }
+        else {
+            throw new SyntaxException("Not a valid Unary expression",token.getLine(),token.getCharPositionInLine());
+        }
     }
 
     private void PrimaryExpression() throws SyntaxException, LexicalException {
-        Kind k = token.getKind();
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
         kindList.add(Kind.KW_TRUE);
@@ -318,33 +335,32 @@ public class PLPParser implements IPLPParser{
         kindList.add(Kind.STRING_LITERAL);
         kindList.add(Kind.LPAREN);
         kindList.add(Kind.IDENTIFIER);
-        if(kindList.contains(k)){
-            if(k.equals(Kind.IDENTIFIER) || k.equals(Kind.LPAREN)){
-                if(k.equals(Kind.LPAREN)){
+        if(kindList.contains(token.getKind())){
+            if(token.getKind().equals(Kind.IDENTIFIER) || token.getKind().equals(Kind.LPAREN)){
+                if(token.getKind().equals(Kind.LPAREN)){
                     matchToken(Kind.LPAREN);
                     Expression();
                     matchToken(Kind.RPAREN);
                 }
                 else{
-                    if (k.equals(Kind.LSQUARE) || k.equals(Kind.LPAREN)){
-                        if(k.equals(Kind.LSQUARE)){
+                    matchToken(Kind.IDENTIFIER);
+                    if (token.getKind().equals(Kind.LSQUARE) || token.getKind().equals(Kind.LPAREN)){
+                        if(token.getKind().equals(Kind.LSQUARE)){
                             matchToken(Kind.LSQUARE);
                             Expression();
                             matchToken(Kind.RSQUARE);
                         }
-                        else if(k.equals(Kind.LPAREN)){
+                        else if(token.getKind().equals(Kind.LPAREN)){
                             matchToken(Kind.LPAREN);
-                            if(kindList.contains(token.getKind()) || k.equals(Kind.BANG) || k.equals(Kind.MINUS)){
+                            if(kindList.contains(token.getKind()) || token.getKind().equals(Kind.BANG) || token.getKind().equals(Kind.MINUS)){
                                 Expression();
                                 while (token.getKind().equals(Kind.COMMA)){
                                     matchToken(Kind.COMMA);
                                     Expression();
                                 }
                             }
+                            matchToken(Kind.RPAREN);
                         }
-                    }
-                    else {
-                        matchToken(token.getKind());
                     }
                 }
             }
@@ -353,15 +369,14 @@ public class PLPParser implements IPLPParser{
     }
 
     private void Type() throws SyntaxException, LexicalException {
-        Kind k = token.getKind();
-        if (k.equals(Kind.KW_INT) || k.equals(Kind.KW_STRING) || k.equals(Kind.KW_BOOLEAN)){
-            matchToken(k);
+        if (token.getKind().equals(Kind.KW_INT) || token.getKind().equals(Kind.KW_STRING) || token.getKind().equals(Kind.KW_BOOLEAN)){
+            matchToken(token.getKind());
         }
-        else if(k.equals(Kind.KW_LIST)){
-            matchToken(k);
+        else if(token.getKind().equals(Kind.KW_LIST)){
+            matchToken(Kind.KW_LIST);
             matchToken(Kind.LSQUARE);
-            if (token.getKind().equals(Kind.KW_INT) || token.getKind().equals(Kind.KW_STRING) || token.getKind().equals(Kind.KW_BOOLEAN)){
-                matchToken(token.getKind());
+            if(!(token.getKind().equals(Kind.RSQUARE))) {
+                Type();
             }
             matchToken(Kind.RSQUARE);
         }
@@ -372,11 +387,7 @@ public class PLPParser implements IPLPParser{
     }
 
     private IPLPToken matchToken(Kind kind) throws SyntaxException, LexicalException {
-        if (Kind.EOF.equals(token.getKind()))
-        {
-            return token;
-        }
-        else if (kind.equals(token.getKind()))
+        if (kind.equals(token.getKind()))
         {
             return consumeToken();
         }
@@ -384,8 +395,14 @@ public class PLPParser implements IPLPParser{
         throw new SyntaxException(errorMessage,token.getLine(),token.getCharPositionInLine());
     }
 
+    private void matchEOF() throws SyntaxException {
+        if (!(token.getKind().equals(Kind.EOF))) {
+            throw new SyntaxException("End of file not found",token.getLine(),token.getCharPositionInLine());
+        }
+    }
+
     private IPLPToken consumeToken() throws SyntaxException, LexicalException {
-        token = lex.nextToken();
+        this.token = lex.nextToken();
         return token;
     }
 }
