@@ -1,19 +1,16 @@
 package edu.ufl.cise.plpfa21.assignment1;
-
-import edu.ufl.cise.plpfa21.assignment2.IPLPParser;
-import edu.ufl.cise.plpfa21.assignment2.PLPParser;
-import edu.ufl.cise.plpfa21.assignment2.SyntaxException;
+import edu.ufl.cise.plpfa21.assignment2.*;
 
 public class CompilerComponentFactory {
 
-	static IPLPLexer getLexer(String input){
-		//TODO  create and return a Lexer instance to parse the given input.
+	public static IPLPLexer getLexer(String input) {
+		//Replace with whatever is needed for your lexer.
 		return new PLPLexer(input);
 	}
-	public static IPLPParser getParser(String input){
-		//TODO  create and return a Parser instance to parse the given input.
-		IPLPLexer lexer = getLexer(input);
-		IPLPParser parser = new PLPParser(lexer);
-		return parser;
+
+	public static IPLPParser getParser(String input) {
+		//Replace this with whatever is needed for your parser.
+		IPLPLexer lex = new PLPLexer(input);
+		return  new PLPParser(lex);
 	}
 }
