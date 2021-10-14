@@ -13,15 +13,12 @@ public class PLPParser implements IPLPParser{
     IPLPLexer lex;
     IPLPToken token;
     public IASTNode parse() throws SyntaxException, LexicalException {
+        this.token= lex.nextToken();
         return Program();
     }
 
     public PLPParser (IPLPLexer lex) {
         this.lex = lex;
-        try {
-            this.token= lex.nextToken();
-        } catch (LexicalException e) {
-        }
     }
 
     private IProgram Program() throws SyntaxException, LexicalException {
@@ -87,14 +84,16 @@ public class PLPParser implements IPLPParser{
         Kind k = token.getKind();
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
-        String Text = token.getText();
+        String Text=token.getText();
         IFunctionDeclaration f = null;
         List<INameDef> args_list = new ArrayList<INameDef>();
         IType t = null;
         IBlock b = null;
-        IIdentifier i = new Identifier__(Line, CharPositionInLine,Text,Text);
+        IIdentifier i = null;
         if (k.equals(Kind.KW_FUN)){
             matchToken(Kind.KW_FUN);
+            Text = token.getText();
+            i = new Identifier__(Line, CharPositionInLine,Text,Text);
             matchToken(Kind.IDENTIFIER);
             matchToken(Kind.LPAREN);
             if(token.getKind().equals(Kind.IDENTIFIER)) {
@@ -353,7 +352,7 @@ public class PLPParser implements IPLPParser{
             matchToken(PLPTokenKinds.Kind.MINUS);
             kind = PLPTokenKinds.Kind.MINUS;
         }
-            r = PrimaryExpression();
+        r = PrimaryExpression();
         if(kind != null) {
             r = new UnaryExpression__(Line ,CharPositionInLine, Text, r, kind );
         }
@@ -395,15 +394,15 @@ public class PLPParser implements IPLPParser{
                         retnode = new ListSelectorExpression__(Line, CharPositionInLine, Text, ident_node,expnode);
                     }
                     else if(token.getKind().equals(Kind.LPAREN)){
-                            matchToken(Kind.LPAREN);
-                            if(kindList.contains(token.getKind()) || token.getKind().equals(Kind.BANG) || token.getKind().equals(Kind.MINUS)){
+                        matchToken(Kind.LPAREN);
+                        if(kindList.contains(token.getKind()) || token.getKind().equals(Kind.BANG) || token.getKind().equals(Kind.MINUS)){
+                            args.add(Expression());
+                            while (token.getKind().equals(Kind.COMMA)){
+                                matchToken(Kind.COMMA);
                                 args.add(Expression());
-                                while (token.getKind().equals(Kind.COMMA)){
-                                    matchToken(Kind.COMMA);
-                                    args.add(Expression());
-                                }
                             }
-                            matchToken(Kind.RPAREN);
+                        }
+                        matchToken(Kind.RPAREN);
                         retnode = new FunctionCallExpression__(Line, CharPositionInLine,Text,ident_node,args);
                     }
 
