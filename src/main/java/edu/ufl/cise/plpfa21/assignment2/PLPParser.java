@@ -49,15 +49,13 @@ public class PLPParser implements IPLPParser{
     }
 
     private IDeclaration Declaration() throws SyntaxException, LexicalException {
-        Kind k = token.getKind();
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text = token.getText();
         IDeclaration d = null;
         INameDef n = null;
         IExpression e = null;
-        if (k.equals(Kind.KW_VAL)) {
-
+        if (this.token.getKind().equals(Kind.KW_VAL)) {
             matchToken(Kind.KW_VAL);
             n = NameDef();
             matchToken(Kind.ASSIGN);
@@ -65,7 +63,7 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.SEMI);
             d = new ImmutableGlobal__(Line, CharPositionInLine, Text, n, e);
         }
-        else if(k.equals(Kind.KW_VAR)){
+        else if(this.token.getKind().equals(Kind.KW_VAR)){
             matchToken(Kind.KW_VAR);
             n = NameDef();
             if(token.getKind().equals(Kind.ASSIGN)){
@@ -75,7 +73,7 @@ public class PLPParser implements IPLPParser{
             matchToken(Kind.SEMI);
             d = new MutableGlobal__(Line, CharPositionInLine, Text, n, e);
         }
-        else if(k.equals(Kind.KW_FUN)) {
+        else if(this.token.getKind().equals(Kind.KW_FUN)) {
             d = Function();
         }
         else {
@@ -258,116 +256,119 @@ public class PLPParser implements IPLPParser{
     }
 
     private IExpression LogicalExpression() throws SyntaxException, LexicalException {
-        IExpression e = null;
+        IExpression r = null;
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text = token.getText();
-        e = ComparisonExpression();
+        r = ComparisonExpression();
         while (token.getKind().equals(Kind.AND) || token.getKind().equals(Kind.OR)){
             if(token.getKind().equals(Kind.AND)) {
                 matchToken(Kind.AND);
-                e = new BinaryExpression__(Line, CharPositionInLine, Text, e, ComparisonExpression(), PLPTokenKinds.Kind.AND);
+                r = new BinaryExpression__(Line, CharPositionInLine, Text, r, ComparisonExpression(), PLPTokenKinds.Kind.AND);
             }
             else {
                 matchToken(Kind.OR);
-                e = new BinaryExpression__(Line, CharPositionInLine, Text, e, ComparisonExpression(), PLPTokenKinds.Kind.OR);
+                r = new BinaryExpression__(Line, CharPositionInLine, Text, r, ComparisonExpression(), PLPTokenKinds.Kind.OR);
             }
         }
-        return e;
+        return r;
     }
 
     private IExpression ComparisonExpression() throws SyntaxException, LexicalException {
-        IExpression e = null;
+        IExpression r = null;
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text = token.getText();
-        e = AdditiveExpression();
+        r = AdditiveExpression();
         while (token.getKind().equals(Kind.LT) || token.getKind().equals(Kind.GT) || token.getKind().equals(Kind.EQUALS) || token.getKind().equals(Kind.NOT_EQUALS)){
             if(token.getKind().equals(Kind.LT)) {
                 matchToken(Kind.LT);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, AdditiveExpression(),PLPTokenKinds.Kind.LT);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, AdditiveExpression(),PLPTokenKinds.Kind.LT);
             }
             else if(token.getKind().equals(Kind.GT)) {
                 matchToken(Kind.GT);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, AdditiveExpression(),PLPTokenKinds.Kind.GT);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, AdditiveExpression(),PLPTokenKinds.Kind.GT);
             }
             else if(token.getKind().equals(Kind.EQUALS)) {
                 matchToken(Kind.EQUALS);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, AdditiveExpression(), Kind.EQUALS);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, AdditiveExpression(), Kind.EQUALS);
             }
             else{
                 matchToken(Kind.NOT_EQUALS);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, AdditiveExpression(), Kind.NOT_EQUALS);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, AdditiveExpression(), Kind.NOT_EQUALS);
             }
         }
-        return e;
+        return r;
     }
 
     private IExpression AdditiveExpression() throws SyntaxException, LexicalException {
-        IExpression e = null;
+        IExpression r = null;
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text = token.getText();
-        e = MultiplicativeExpression();
+        r = MultiplicativeExpression();
         while(token.getKind().equals(Kind.PLUS) || token.getKind().equals(Kind.MINUS)){
             if(token.getKind().equals(Kind.PLUS)) {
                 matchToken(Kind.PLUS);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, MultiplicativeExpression(),Kind.PLUS);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, MultiplicativeExpression(),Kind.PLUS);
             }
             else{
                 matchToken(Kind.MINUS);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, MultiplicativeExpression(), Kind.MINUS);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, MultiplicativeExpression(), Kind.MINUS);
             }
         }
-        return e;
+        return r;
     }
 
     private IExpression MultiplicativeExpression() throws SyntaxException, LexicalException {
-        IExpression e = null;
+        IExpression r = null;
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text = token.getText();
-        e = UnaryExpression();
+        r = UnaryExpression();
         while (token.getKind().equals(Kind.TIMES) || token.getKind().equals(Kind.DIV)){
             if(token.getKind().equals(Kind.TIMES)) {
                 matchToken(Kind.TIMES);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, UnaryExpression(),PLPTokenKinds.Kind.TIMES);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, UnaryExpression(),PLPTokenKinds.Kind.TIMES);
             }
             else{
                 matchToken(Kind.DIV);
-                e = new BinaryExpression__(Line ,CharPositionInLine, Text, e, UnaryExpression(),PLPTokenKinds.Kind.DIV);
+                r = new BinaryExpression__(Line ,CharPositionInLine, Text, r, UnaryExpression(),PLPTokenKinds.Kind.DIV);
             }
         }
-        return e;
+        return r;
     }
 
     private IExpression UnaryExpression() throws SyntaxException, LexicalException {
-        IExpression e = null;
-        PLPTokenKinds.Kind k = null;
+        IExpression r = null;
+        PLPTokenKinds.Kind kind = null;
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text = token.getText();
-        if(this.token.equals(Kind.BANG)){
-            k = Kind.BANG;
-            matchToken(Kind.BANG);
+        if(token.getKind().equals(Kind.BANG)) {
+            matchToken(PLPTokenKinds.Kind.BANG);
+            kind = PLPTokenKinds.Kind.BANG;
         }
-        else {
-            k = PLPTokenKinds.Kind.MINUS;
-            matchToken(Kind.MINUS);
+        else if(token.getKind().equals(Kind.MINUS)) {
+            matchToken(PLPTokenKinds.Kind.MINUS);
+            kind = PLPTokenKinds.Kind.MINUS;
         }
-            e = PrimaryExpression();
-        e = new UnaryExpression__(Line ,CharPositionInLine, Text, e, k );
-        return e;
+            r = PrimaryExpression();
+        if(kind != null) {
+            r = new UnaryExpression__(Line ,CharPositionInLine, Text, r, kind );
+        }
+        return r;
     }
 
     private IExpression PrimaryExpression() throws SyntaxException, LexicalException {
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text = token.getText();
-        IExpression e = null;
-        List<IExpression> argsList = new ArrayList<IExpression>();
-        IIdentifier i = null;
+        IExpression retnode = null;
+        List<IExpression> args = new ArrayList<IExpression>();
+        IIdentifier ident_node = null;
         IExpression expnode = null;
+
         ArrayList<Kind> kindList = new ArrayList<Kind>();
         kindList.add(Kind.KW_NIL);
         kindList.add(Kind.KW_TRUE);
@@ -379,64 +380,58 @@ public class PLPParser implements IPLPParser{
         if(kindList.contains(token.getKind())){
             if(token.getKind().equals(Kind.IDENTIFIER) || token.getKind().equals(Kind.LPAREN)){
                 if(token.getKind().equals(Kind.LPAREN)){
-                    matchToken(Kind.LPAREN);
-                    e = Expression();
-                    matchToken(Kind.RPAREN);
+                    matchToken(PLPTokenKinds.Kind.LPAREN);
+                    retnode = Expression();
+                    matchToken(PLPTokenKinds.Kind.RPAREN);
                 }
                 else{
-                    i = new Identifier__(Line, CharPositionInLine,Text,Text);
-                    e = new IdentExpression__(Line, CharPositionInLine,Text,i);
+                    ident_node = new Identifier__(Line, CharPositionInLine,Text,Text);
+                    retnode = new IdentExpression__(Line, CharPositionInLine,Text,ident_node);
                     matchToken(Kind.IDENTIFIER);
-                    if (token.getKind().equals(Kind.LSQUARE) || token.getKind().equals(Kind.LPAREN)){
-                        if(token.getKind().equals(Kind.LSQUARE)){
-                            matchToken(Kind.LSQUARE);
-                            expnode = Expression();
-                            matchToken(Kind.RSQUARE);
-                            e = new ListSelectorExpression__(Line, CharPositionInLine, Text, i,expnode);
-                        }
-                        else if(token.getKind().equals(Kind.LPAREN)){
+                    if(token.getKind().equals(Kind.LSQUARE)){
+                        matchToken(PLPTokenKinds.Kind.LSQUARE);
+                        expnode = Expression();
+                        matchToken(PLPTokenKinds.Kind.RSQUARE);
+                        retnode = new ListSelectorExpression__(Line, CharPositionInLine, Text, ident_node,expnode);
+                    }
+                    else if(token.getKind().equals(Kind.LPAREN)){
                             matchToken(Kind.LPAREN);
                             if(kindList.contains(token.getKind()) || token.getKind().equals(Kind.BANG) || token.getKind().equals(Kind.MINUS)){
-                                argsList.add(Expression());
+                                args.add(Expression());
                                 while (token.getKind().equals(Kind.COMMA)){
                                     matchToken(Kind.COMMA);
-                                    argsList.add(Expression());
+                                    args.add(Expression());
                                 }
                             }
                             matchToken(Kind.RPAREN);
-                            e = new FunctionCallExpression__(Line, CharPositionInLine,Text,i,argsList);
-                        }
+                        retnode = new FunctionCallExpression__(Line, CharPositionInLine,Text,ident_node,args);
                     }
+
                 }
             }
             else{
-                if(this.token.equals(Kind.KW_NIL)){
-                    e = new NilConstantExpression__(token.getLine(), token.getCharPositionInLine(),
+                if(this.token.getKind().equals(Kind.KW_NIL)){
+                    retnode = new NilConstantExpression__(token.getLine(), token.getCharPositionInLine(),
                             token.getText());
                     matchToken(PLPTokenKinds.Kind.KW_NIL);
                 }
-                else if(this.token.equals(Kind.KW_TRUE)){
-
-                    e = new BooleanLiteralExpression__(token.getLine(), token.getCharPositionInLine(),
-                            token.getText(), true);
+                else if(this.token.getKind().equals(Kind.KW_TRUE)){
+                    retnode = new BooleanLiteralExpression__(token.getLine(), token.getCharPositionInLine(),
+                            token.getText(),true);
                     matchToken(PLPTokenKinds.Kind.KW_TRUE);
                 }
-                else if(this.token.equals(Kind.KW_FALSE)) {
-
-                    e = new BooleanLiteralExpression__(token.getLine(), token.getCharPositionInLine(),
-                            token.getText(), false);
+                else if(this.token.getKind().equals(Kind.KW_FALSE)) {
+                    retnode = new BooleanLiteralExpression__(token.getLine(), token.getCharPositionInLine(),
+                            token.getText(),false);
                     matchToken(PLPTokenKinds.Kind.KW_FALSE);
                 }
-                else if(this.token.equals(Kind.INT_LITERAL)) {
-
-                    e = new IntLiteralExpression__(token.getLine(), token.getCharPositionInLine(),
-                            token.getText(), token.getIntValue());
+                else if(this.token.getKind().equals(Kind.INT_LITERAL)) {
+                    retnode = new IntLiteralExpression__(token.getLine(), token.getCharPositionInLine(),token.getText(),token.getIntValue());
                     matchToken(PLPTokenKinds.Kind.INT_LITERAL);
                 }
-                else if(this.token.equals(Kind.STRING_LITERAL)) {
-
-                    e = new StringLiteralExpression__(token.getLine(), token.getCharPositionInLine(),
-                            token.getText(), token.getStringValue());
+                else if(this.token.getKind().equals(Kind.STRING_LITERAL)) {
+                    retnode = new StringLiteralExpression__(token.getLine(), token.getCharPositionInLine(),
+                            token.getText(),token.getStringValue());
                     matchToken(PLPTokenKinds.Kind.STRING_LITERAL);
                 }
             }
@@ -444,7 +439,7 @@ public class PLPParser implements IPLPParser{
         else {
             throw new SyntaxException("Invalid Expression", token.getLine(), token.getCharPositionInLine());
         }
-        return e;
+        return retnode;
     }
 
     private IType Type() throws SyntaxException, LexicalException {
@@ -462,6 +457,7 @@ public class PLPParser implements IPLPParser{
             r = new PrimitiveType__(Line, CharPositionInLine, Text, IType.TypeKind.STRING);
         }
         else if (token.getKind().equals(Kind.KW_BOOLEAN)){
+            matchToken(Kind.KW_BOOLEAN);
             r = new PrimitiveType__(Line, CharPositionInLine, Text, IType.TypeKind.BOOLEAN);
         }
 
