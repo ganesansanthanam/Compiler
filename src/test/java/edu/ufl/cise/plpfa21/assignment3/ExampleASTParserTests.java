@@ -5,28 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import edu.ufl.cise.plpfa21.assignment2.SyntaxException;
+import edu.ufl.cise.plpfa21.assignment3.ast.*;
 import org.junit.jupiter.api.Test;
 
 import edu.ufl.cise.plpfa21.assignment1.CompilerComponentFactory;
 import edu.ufl.cise.plpfa21.assignment1.PLPTokenKinds;
 import edu.ufl.cise.plpfa21.assignment2.IPLPParser;
-import edu.ufl.cise.plpfa21.assignment3.ast.IASTNode;
-import edu.ufl.cise.plpfa21.assignment3.ast.IBinaryExpression;
-import edu.ufl.cise.plpfa21.assignment3.ast.IBooleanLiteralExpression;
-import edu.ufl.cise.plpfa21.assignment3.ast.IDeclaration;
-import edu.ufl.cise.plpfa21.assignment3.ast.IExpression;
-import edu.ufl.cise.plpfa21.assignment3.ast.IFunctionCallExpression;
-import edu.ufl.cise.plpfa21.assignment3.ast.IIdentExpression;
-import edu.ufl.cise.plpfa21.assignment3.ast.IIdentifier;
-import edu.ufl.cise.plpfa21.assignment3.ast.IImmutableGlobal;
-import edu.ufl.cise.plpfa21.assignment3.ast.IIntLiteralExpression;
-import edu.ufl.cise.plpfa21.assignment3.ast.IListType;
-import edu.ufl.cise.plpfa21.assignment3.ast.IMutableGlobal;
-import edu.ufl.cise.plpfa21.assignment3.ast.INameDef;
-import edu.ufl.cise.plpfa21.assignment3.ast.IPrimitiveType;
-import edu.ufl.cise.plpfa21.assignment3.ast.IProgram;
-import edu.ufl.cise.plpfa21.assignment3.ast.IStringLiteralExpression;
-import edu.ufl.cise.plpfa21.assignment3.ast.IType;
 import edu.ufl.cise.plpfa21.assignment3.ast.IType.TypeKind;
 
 class ExampleASTParserTests implements PLPTokenKinds {
@@ -383,5 +368,82 @@ class ExampleASTParserTests implements PLPTokenKinds {
 		assertEquals(n15.getValue(),0);
 		}
 
+	@Test public void test11() throws Exception{
+		String input = """
+		FUN f() DO
+		RETURN NIL;
+		END
+		""";
+		IASTNode ast = getAST(input);
+		assertTrue(ast instanceof IProgram);
+		IProgram n0=(IProgram)ast;
+		List<IDeclaration> n1=n0.getDeclarations();
+		IDeclaration n2 = n1.get(0);
+		assertTrue(n2 instanceof IFunctionDeclaration);
+		IFunctionDeclaration n3=(IFunctionDeclaration)n2;
+		IIdentifier n4 = n3.getName();
+		assertTrue(n4 instanceof IIdentifier);
+		assertEquals(n4.getName(),"f");
+		IBlock n5 = n3.getBlock();
+		assertTrue(n5 instanceof IBlock);
+		List<IStatement> n6 = n5.getStatements();
+		IStatement n7=n6.get(0);
+		assertTrue(n7 instanceof IReturnStatement);
+		IReturnStatement n8 = (IReturnStatement)n7;
+		IExpression n9 = n8.getExpression();
+		assertTrue(n9 instanceof INilConstantExpression);
+	}
 
+	@Test public void test12() throws Exception {
+		String input = """
+				FUN f() DO
+				RETURN NIL;
+				END
+				""";
+		IASTNode ast = getAST(input);
+		assertTrue(ast instanceof IProgram);
+		IProgram n0 = (IProgram) ast;
+		List<IDeclaration> n1 = n0.getDeclarations();
+		int n2 = n1.size();
+		assertEquals(n2, 1);
+		IDeclaration n3 = n1.get(0);
+		assertTrue(n3 instanceof IFunctionDeclaration);
+		IFunctionDeclaration n4 = (IFunctionDeclaration) n3;
+		IIdentifier n5 = n4.getName();
+		assertEquals(n5.getName(), "f");
+		List<INameDef> n6 = n4.getArgs();
+		int n7 = n6.size();
+		assertEquals(n7, 0);
+		IType n8 = n4.getResultType();
+		assertEquals(n8, null);
+		IBlock n9 = n4.getBlock();
+		List<IStatement> n10 = n9.getStatements();
+		int n11 = n10.size();
+		assertEquals(n11, 1);
+		IStatement n12 = n10.get(0);
+		assertTrue(n12 instanceof IReturnStatement);
+		IReturnStatement n13 = (IReturnStatement) n12;
+		IExpression n14 = n13.getExpression();
+		assertTrue(n14 instanceof INilConstantExpression);
+	}
+
+	@Test public void test13() throws Exception {
+		String input = """
+		FUN soln(a, b:LIST[], c:STRING, d:LIST[INT]):INT DO
+		SWITCH a<6
+		CASE a+2: LET a=2*5 DO END
+		DEFAULT RETURN a&&b;
+		END
+		IF b==d && !a DO 4*6; END
+		END
+		VAL a = 1-5;
+		VAR a:STRING = "thisisa \nstring";
+		""";
+		IASTNode ast = getAST(input);
+		assertTrue(ast instanceof IProgram);
+		IProgram n0 = (IProgram) ast;
+		List<IDeclaration> n1 = n0.getDeclarations();
+		int n2 = n1.size();
+		assertEquals(n2, 3);
+	}
 }

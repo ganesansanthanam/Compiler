@@ -81,7 +81,6 @@ public class PLPParser implements IPLPParser{
     }
 
     private IFunctionDeclaration Function() throws SyntaxException, LexicalException {
-        Kind k = token.getKind();
         int Line = token.getLine();
         int CharPositionInLine = token.getCharPositionInLine();
         String Text=token.getText();
@@ -90,26 +89,24 @@ public class PLPParser implements IPLPParser{
         IType t = null;
         IBlock b = null;
         IIdentifier i = null;
-        if (k.equals(Kind.KW_FUN)){
-            matchToken(Kind.KW_FUN);
-            Text = token.getText();
-            i = new Identifier__(Line, CharPositionInLine,Text,Text);
-            matchToken(Kind.IDENTIFIER);
-            matchToken(Kind.LPAREN);
-            if(token.getKind().equals(Kind.IDENTIFIER)) {
+        matchToken(Kind.KW_FUN);
+        Text = token.getText();
+        i = new Identifier__(Line, CharPositionInLine,Text,Text);
+        matchToken(Kind.IDENTIFIER);
+        matchToken(Kind.LPAREN);
+        if(token.getKind().equals(Kind.IDENTIFIER)) {
+            args_list.add(NameDef());
+            while (token.getKind().equals(Kind.COMMA)) {
+                matchToken(Kind.COMMA);
                 args_list.add(NameDef());
-                while (token.getKind().equals(Kind.COMMA)) {
-                    matchToken(Kind.COMMA);
-                    args_list.add(NameDef());
-                }
             }
-            matchToken(Kind.RPAREN);
-            if(token.getKind().equals(Kind.COLON)){
-                matchToken(Kind.COLON);
-                t = Type();
-            }
-            matchToken(Kind.KW_DO);
         }
+        matchToken(Kind.RPAREN);
+        if(token.getKind().equals(Kind.COLON)){
+            matchToken(Kind.COLON);
+            t = Type();
+        }
+        matchToken(Kind.KW_DO);
         b = Block();
         matchToken(Kind.KW_END);
         f = new FunctionDeclaration___(Line ,CharPositionInLine,Text, i, args_list, t, b);
