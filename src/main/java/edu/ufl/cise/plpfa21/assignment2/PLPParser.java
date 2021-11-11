@@ -183,15 +183,25 @@ public class PLPParser implements IPLPParser{
                 s = new LetStatement__(Line ,CharPositionInLine, Text, b , e, n);
             }
             else if(token.getKind().equals(Kind.KW_IF) || token.getKind().equals(Kind.KW_WHILE)){
-                matchToken(token.getKind());
+                /*matchToken(token.getKind());
                 e = Expression();
                 matchToken(Kind.KW_DO);
                 b = Block();
-                matchToken(Kind.KW_END);
+                matchToken(Kind.KW_END);*/
                 if(token.getKind().equals(Kind.KW_IF)){
+                    matchToken(token.getKind());
+                    e = Expression();
+                    matchToken(Kind.KW_DO);
+                    b = Block();
+                    matchToken(Kind.KW_END);
                     s = new IfStatement__(Line ,CharPositionInLine, Text, e, b);
                 }
                 else{
+                    matchToken(token.getKind());
+                    e = Expression();
+                    matchToken(Kind.KW_DO);
+                    b = Block();
+                    matchToken(Kind.KW_END);
                     s = new WhileStatement__(Line ,CharPositionInLine, Text, e, b);
                 }
             }
@@ -211,8 +221,9 @@ public class PLPParser implements IPLPParser{
                     block_list.add(Block());
                 }
                 matchToken(Kind.KW_DEFAULT);
-                Block();
+                IBlock defaultBlock = Block();
                 matchToken(Kind.KW_END);
+                s = new SwitchStatement__(Line,CharPositionInLine,Text,e,exp_list,block_list,defaultBlock);
             }
         }
         else if(expressionFirst.contains(token.getKind())){

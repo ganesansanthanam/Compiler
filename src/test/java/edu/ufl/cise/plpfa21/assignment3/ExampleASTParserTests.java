@@ -446,4 +446,62 @@ class ExampleASTParserTests implements PLPTokenKinds {
 		int n2 = n1.size();
 		assertEquals(n2, 3);
 	}
+
+	@Test public void test14() throws Exception {
+		String input = """
+				FUN func() DO
+				IF x==0 DO x = 1; END
+				END  /*FUN*/
+				""";
+		IASTNode ast = getAST(input);
+		assertTrue(ast instanceof IProgram);
+		IProgram n0 = (IProgram) ast;
+	}
+
+	@Test public void test15() throws Exception {
+		String input = """
+			FUN func() DO
+			SWITCH x
+			CASE 0 : y=0;
+			CASE 1 : y=1;
+			CASE 2 : y=2;
+			DEFAULT y=3;
+			END  /*SWITCH*/
+			END  /*FUN*/
+		""";
+		IASTNode ast = getAST(input);
+		assertTrue(ast instanceof IProgram);
+		IProgram n0 = (IProgram) ast;
+	}
+
+	@Test public void test16() throws Exception {
+		String input = """
+				FUN func() DO
+				SWITCH x
+				CASE 0 : y=0;
+				CASE 1 : y=1;
+				CASE 2 : y=2;
+				DEFAULT y=3;
+				END  /*SWITCH*/
+				END  /*FUN*/
+				""";
+		IASTNode ast = getAST(input);
+		assertTrue(ast instanceof IProgram);
+		IProgram n0 = (IProgram) ast;
+		List<IDeclaration> n1 = n0.getDeclarations();
+		int n2 = n1.size();
+		IDeclaration n3 = n1.get(0);
+		assertTrue(n3 instanceof IFunctionDeclaration);
+		IFunctionDeclaration n4 = (IFunctionDeclaration) n3;
+		IIdentifier n5 = n4.getName();
+		assertEquals(n5.getName(), "func");
+		List<INameDef> n6 = n4.getArgs();
+		IBlock n9 = n4.getBlock();
+		List<IStatement> n10 = n9.getStatements();
+		IStatement n12 = n10.get(0);
+		assertTrue(n12 instanceof ISwitchStatement);
+		ISwitchStatement n13 = (ISwitchStatement) n12;
+		String s = n12.getText();
+	}
+
 }
