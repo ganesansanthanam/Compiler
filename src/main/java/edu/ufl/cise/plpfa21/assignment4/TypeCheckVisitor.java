@@ -320,10 +320,8 @@ public class TypeCheckVisitor implements ASTVisitor {
 		//TODO
 		IExpression exp = n.getExpression();
 		IType returnType = (IType) exp.visit(this,arg);
-		if(arg instanceof  IFunctionDeclaration) {
-			IFunctionDeclaration functionDef = (IFunctionDeclaration) arg;
-			check(compatibleAssignmentTypes(functionDef.getResultType(),returnType),n,"return type mismatch");
-		}
+		IFunctionDeclaration functionDef = (IFunctionDeclaration) arg;
+		check(compatibleAssignmentTypes(functionDef.getResultType(),returnType),n,"return type mismatch");
 		return arg;
 		//throw new UnsupportedOperationException("IMPLEMENT ME!");
 	}
