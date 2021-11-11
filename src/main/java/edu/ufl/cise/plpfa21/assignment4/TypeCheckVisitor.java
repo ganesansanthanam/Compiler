@@ -64,53 +64,41 @@ public class TypeCheckVisitor implements ASTVisitor {
 		IType t1 = (IType) n.getLeft().visit(this, arg);
 		IType t2 = (IType) n.getRight().visit(this, arg);
 		Kind op = n.getOp();
-		if(op.equals(Kind.PLUS)){
-			if(t1.isInt() && t2.isInt())
-			{
-				n.setType(PrimitiveType__.intType);
-			}
-			else if(t1.isBoolean() && t2.isBoolean())
-			{
+		if(t1.equals(t2)) {
+			if (op.equals(Kind.EQUALS) || op.equals(Kind.NOT_EQUALS) || op.equals(Kind.LT) || op.equals(Kind.GT)) {
 				n.setType(PrimitiveType__.booleanType);
 			}
-			else if(t1.isString() && t2.isString())
+			else if (op.equals(Kind.PLUS)) {
+				if (t1.isInt()) {
+					n.setType(PrimitiveType__.intType);
+				}
+				else if (t1.isList()) {
+					n.setType(PrimitiveType__.booleanType);
+				}
+				else if (t1.isString()) {
+					n.setType(PrimitiveType__.stringType);
+				}
+			}
+			else if (op.equals(Kind.MINUS) || op.equals(Kind.TIMES) || op.equals(Kind.DIV)) {
+				if (t1.isInt() && t2.isInt()) {
+					n.setType(PrimitiveType__.intType);
+				}
+			}
+			else if (op.equals(Kind.AND) || op.equals(Kind.OR)) {
+				if (t1.isBoolean() && t2.isBoolean()) {
+					n.setType(PrimitiveType__.booleanType);
+				}
+			}
+			else
 			{
-				n.setType(PrimitiveType__.stringType);
-			}
-			else {
-				check(false, n, "invalid datatype with op plus");
-			}
-		}
-		else if(op.equals(Kind.MINUS) || op.equals(Kind.TIMES) || op.equals(Kind.DIV)){
-			if(t1.isInt() && t2.isInt())
-			{
-				n.setType(PrimitiveType__.intType);
-			}
-			else {
-				check(false, n, "OP: Minus,Times,Div. Non-Int types not allowed");
-			}
-		}
-		else if(op.equals(Kind.AND) || op.equals(Kind.OR)){
-			if(t1.isBoolean() && t2.isBoolean())
-			{
-				n.setType(PrimitiveType__.booleanType);
-			}
-			else {
-				check(false, n, "OP: And,Or. Non-Boolean types not allowed");
-			}
-		}
-		else if(op.equals(Kind.EQUALS) || op.equals(Kind.NOT_EQUALS) || op.equals(Kind.LT) || op.equals(Kind.GT)){
-			if((t1.isInt() && t2.isInt()) || (t1.isBoolean() && t2.isBoolean()) || (t1.isString() && t2.isString())){
-				n.setType(PrimitiveType__.booleanType);
-			}
-			else {
-				check(false, n, "type error when using eq,neq,lt,gt");
+				check(false, n, "Illegal operation on the binary expressions");
 			}
 		}
 		else {
-			throw new UnsupportedOperationException("unknown binary operation");
+			check(false, n, "Binary Expression has a type mismatch");
 		}
 		return n.getType();
+		//throw new UnsupportedOperationException("IMPLEMENT ME!");
 	}
 
 	/**
@@ -191,7 +179,7 @@ public class TypeCheckVisitor implements ASTVisitor {
 		//TODO
 		IExpression guard = n.getGuardExpression();
 		IType guardType = (IType) guard.visit(this, arg);
-		check(guardType.isBoolean(), n, "Guard expression type not boolean");
+		check(guardType.isBoolean(), n, "Guard expression type isn't a boolean type");
 		IBlock block = n.getBlock();
 		block.visit(this, arg);
 		return arg;
@@ -223,15 +211,20 @@ public class TypeCheckVisitor implements ASTVisitor {
 	public Object visitILetStatement(ILetStatement n, Object arg) throws Exception {
 		//TODO
 		IExpression expression_n = n.getExpression();
-		String i = n.getLocalDef().getIdent().getName();
-		IType expressionType = (IType) expression_n.visit(this,arg);
-		check(symtab.insert(i,(IDeclaration) arg), n, i + " already declared in scope");
-		symtab.enterScope();
+		IType expressionType;
 		INameDef name = n.getLocalDef();
+		IBlock block = n.getBlock();
+		if(expression_n!=null){
+			expressionType = (IType) expression_n.visit(this, arg);
+		}
+		else {
+			expressionType = Type__.undefinedType;
+		}
+		symtab.enterScope();
 		IType nameDefType = (IType) name.visit(this,name);
-		//IType inferredType = expression_n != null ? (IType) expression_n.visit(this, arg) : Type__.undefinedType;
 		IType finalType = unifyAndCheck(nameDefType,expressionType,n);
 		name.setType(finalType);
+		block.visit(this,arg);
 		symtab.leaveScope();
 		return  arg;
 		//throw new UnsupportedOperationException("IMPLEMENT ME!");
@@ -362,20 +355,23 @@ public class TypeCheckVisitor implements ASTVisitor {
 	public Object visitISwitchStatement(ISwitchStatement n, Object arg) throws Exception {
 		//TODO
 		IType t0 = (IType) n.getSwitchExpression().visit(this,arg);
+		List<IExpression> expressions = n.getBranchExpressions();
+		List<IBlock> blocks = n.getBlocks();
 		if(t0.isInt() || t0.isBoolean() || t0.isString()){
-			List<IExpression> expressions = n.getBranchExpressions();
-			List<IBlock> blocks = n.getBlocks();
 			int expressionLen = expressions.size();
 			for (int i=0;i<expressionLen;i++) {
 				IExpression e = expressions.get(i);
-				IType bt = (IType) e.visit(this,arg);
-				boolean condition1 = bt.equals(t0);
-				boolean condition2 = isConstantExpression(e);
 				IBlock block = blocks.get(i);
-				check(condition1 && condition2,n,"type error for switch case block");
+				IType bt = (IType) e.visit(this,arg);
+				boolean condition1 = compatibleAssignmentTypes(t0,bt);
+				boolean condition2 = isConstantExpression(e);
+				check(condition1 && condition2,n,"Expression type incompatibility");
 				block.visit(this, arg);
-				n.getDefaultBlock().visit(this,arg);
 			}
+			n.getDefaultBlock().visit(this,arg);
+		}
+		else {
+			check(false, n, "Switch guard expression type error");
 		}
 		return arg;
 		//throw new UnsupportedOperationException("IMPLEMENT ME!");
