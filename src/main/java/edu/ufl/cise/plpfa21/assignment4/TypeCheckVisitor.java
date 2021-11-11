@@ -72,8 +72,11 @@ public class TypeCheckVisitor implements ASTVisitor {
 				if (t1.isInt()) {
 					n.setType(PrimitiveType__.intType);
 				}
-				else if (t1.isList()) {
-					n.setType(PrimitiveType__.booleanType);
+				else if (t1.isList() && t2.isList()) {
+					boolean condition = ((IListType) t1).getElementType() == ((IListType) t2).getElementType();
+					if(condition){
+						n.setType(t1);
+					}
 				}
 				else if (t1.isString()) {
 					n.setType(PrimitiveType__.stringType);
