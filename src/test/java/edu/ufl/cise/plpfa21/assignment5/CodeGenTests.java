@@ -1080,7 +1080,7 @@ public class CodeGenTests {
 		assertEquals(0, result);
 	}
 
-	/*@DisplayName("let0")
+	@DisplayName("let0")
 	@Test
 	public void let0(TestInfo testInfo) throws Exception {
 		String input = """
@@ -1259,7 +1259,7 @@ public class CodeGenTests {
 		Class<?> testClass = getClass(bytecode, className);
 		runMethod(testClass, "main", params);
 		assertEquals(5, getInt(testClass, "y"));
-	}*/
+	}
 
 
 
