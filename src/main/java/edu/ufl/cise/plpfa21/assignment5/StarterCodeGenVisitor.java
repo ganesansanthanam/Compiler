@@ -341,7 +341,7 @@ public class StarterCodeGenVisitor implements ASTVisitor, Opcodes {
 		mv.visitLdcInsn(n.getValue());
 		return null;
 	}
-	
+
 	@Override
 	public Object visitILetStatement(ILetStatement n, Object arg) throws Exception {
 		MethodVisitor mv = ((MethodVisitorLocalVarTable)arg).mv;
@@ -572,17 +572,18 @@ public class StarterCodeGenVisitor implements ASTVisitor, Opcodes {
 		MethodVisitor mv = ((MethodVisitorLocalVarTable)arg).mv;
 		IExpression le = n.getLeft();
 		IExpression re = n.getRight();
-		IIdentifier identifier = ((IIdentExpression)le).getName();
-		String name = identifier.getName();
-		IDeclaration declaration = identifier.getDec();
 
-		int assignSlot = (int)identifier.visit(this, arg);
+
 //		n.getRight().visit(this,arg);
 		if(le instanceof IFunctionCallExpression){
 			le.visit(this,arg);
 		}
 		else {
 			re.visit(this,arg);
+			IIdentifier identifier = ((IIdentExpression)le).getName();
+			IDeclaration declaration = identifier.getDec();
+			String name = identifier.getName();
+			int assignSlot = (int)identifier.visit(this, arg);
 			if(assignSlot>=0){
 				INameDef nameDef = (INameDef)declaration;
 				if(nameDef.getType().isInt() || nameDef.getType().isBoolean()){
