@@ -29,9 +29,9 @@ public class Runtime {
 	}
 	// Greater than
 	public static boolean boolge(boolean arg,boolean args){
-		if(arg==false && args==true)
-			return false;
-		return true;
+		if(arg==true && args==false)
+			return true;
+		return false;
 	}
 	public static boolean intge(int arg,int args){
 		if(arg>args)
@@ -66,9 +66,9 @@ public class Runtime {
 		return false;
 	}
 	public static boolean intneq(int arg,int args){
-		if(arg==args)
-			return false;
-		return true;
+		if(arg!=args)
+			return true;
+		return false;
 	}
 	public static boolean strneq(String arg,String args){
 		if(arg.equals(args))
